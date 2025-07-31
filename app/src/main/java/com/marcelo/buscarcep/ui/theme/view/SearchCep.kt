@@ -1,7 +1,7 @@
 package com.marcelo.buscarcep.ui.theme.view
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,22 +15,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.marcelo.buscarcep.model.searchCepState
 import com.marcelo.buscarcep.ui.theme.Componentes.ButtonCustom
 import com.marcelo.buscarcep.ui.theme.Componentes.InputTextFieldCustom
 import com.marcelo.buscarcep.ui.theme.Teal700
@@ -39,13 +36,16 @@ import com.marcelo.buscarcep.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchCep(navController: NavController) {
+fun SearchCepScreen(
+    uiState: searchCepState,
+    onCepChange: (String) -> Unit,
+    onLogradouroChange: (String) -> Unit,
+    onBairroChange: (String) -> Unit,
+    onCidadeChange: (String) -> Unit,
+    onEstadoChange: (String) -> Unit,
+    navController: NavController
+) {
 
-    var inputCep by remember { mutableStateOf("") }
-    var inputLogradouro by remember { mutableStateOf("") }
-    var inputBairro by remember { mutableStateOf("") }
-    var inputCidade by remember { mutableStateOf("") }
-    var inputEstado by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Scaffold(
@@ -53,14 +53,11 @@ fun SearchCep(navController: NavController) {
             TopAppBar(
                 title = {
                     Text(text = "Buscar CEP", fontSize = 18.sp)
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Teal700,
-                    titleContentColor = White
+                }, colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Teal700, titleContentColor = White
                 )
             )
-        }
-    ) { paddingValues ->
+        }) { paddingValues ->
 
         Column(
             modifier = Modifier
@@ -75,10 +72,8 @@ fun SearchCep(navController: NavController) {
             ) {
 
                 InputTextFieldCustom(
-                    value = inputCep,
-                    onValueChange = {
-                        inputCep = it
-                    },
+                    value = uiState.cep,
+                    onValueChange = onCepChange,
                     placeholder = "Cep",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
@@ -88,21 +83,22 @@ fun SearchCep(navController: NavController) {
 
                 ButtonCustom(
                     onClick = {
-
+                        Toast.makeText(context, onCepChange.toString(), Toast.LENGTH_LONG).show()
                     },
                     text = "Buscar CEP",
-                    modifier = Modifier.padding(0.dp, 50.dp, 20.dp, 10.dp).height(55.dp).width(300.dp)
+                    modifier = Modifier
+                        .padding(0.dp, 50.dp, 20.dp, 10.dp)
+                        .height(55.dp)
+                        .width(300.dp)
                 )
             }
 
-            Column (
+            Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 InputTextFieldCustom(
-                    value = inputLogradouro,
-                    onValueChange = {
-                        inputLogradouro = it
-                    },
+                    value = uiState.logradouro,
+                    onValueChange = onLogradouroChange,
                     placeholder = "Logradouro",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -111,10 +107,8 @@ fun SearchCep(navController: NavController) {
                 )
 
                 InputTextFieldCustom(
-                    value = inputBairro,
-                    onValueChange = {
-                        inputBairro = it
-                    },
+                    value = uiState.bairro,
+                    onValueChange = onBairroChange,
                     placeholder = "Bairro",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -123,22 +117,31 @@ fun SearchCep(navController: NavController) {
                 )
 
                 InputTextFieldCustom(
-                    value = inputCidade,
-                    onValueChange = {
-                        inputCidade = it
-                    },
+                    value = uiState.cidade,
+                    onValueChange = onCidadeChange,
                     placeholder = "Cidade",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp, 0.dp, 20.dp, 10.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                )
+
+                InputTextFieldCustom(
+                    value = uiState.estado,
+                    onValueChange = onEstadoChange,
+                    placeholder = "Estado",
+                    modifier = Modifier
+                        .fillMaxSize()
                         .padding(20.dp, 0.dp, 20.dp, 10.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
 
                 ButtonCustom(
                     onClick = {
-
-                    },
-                    text = "Avançar",
-                    modifier = Modifier.padding(start = 20.dp).height(55.dp)
+                        navController.navigate("home")
+                    }, text = "Avançar", modifier = Modifier
+                        .padding(start = 20.dp)
+                        .height(55.dp)
                 )
 
             }
@@ -150,10 +153,40 @@ fun SearchCep(navController: NavController) {
 
 }
 
+@Composable
+fun SearchCep(
+    navController: NavController,
+    viewModel: SearchCEPViewModel = hiltViewModel(),
+) {
+
+    SearchCepScreen(
+        uiState = viewModel.searchCepState,
+        onCepChange = viewModel::onCepChange,
+        onLogradouroChange = viewModel::onLogradouroChange,
+        onBairroChange = viewModel::onBairroChange,
+        onCidadeChange = viewModel::onCidadeChange,
+        onEstadoChange = viewModel::onEstadoChange,
+        navController
+    )
+}
+
+
 @Preview(showSystemUi = true)
 @Composable
 private fun SearchPreview() {
-
     val navController = rememberNavController()
-    SearchCep(navController = navController)
+    SearchCepScreen(
+        uiState = searchCepState(
+            "6267000",
+            "Rua 1",
+            "Centro",
+            "SGA",
+            "Ce"),
+        onCepChange = {},
+        onLogradouroChange = {},
+        onBairroChange = {},
+        onCidadeChange = {},
+        onEstadoChange = {},
+        navController
+    )
 }
