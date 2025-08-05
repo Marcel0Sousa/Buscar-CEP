@@ -43,6 +43,7 @@ fun SearchCepScreen(
     onBairroChange: (String) -> Unit,
     onCidadeChange: (String) -> Unit,
     onEstadoChange: (String) -> Unit,
+    onClick: () -> Unit,
     navController: NavController
 ) {
 
@@ -82,9 +83,7 @@ fun SearchCepScreen(
                 )
 
                 ButtonCustom(
-                    onClick = {
-                        Toast.makeText(context, onCepChange.toString(), Toast.LENGTH_LONG).show()
-                    },
+                    onClick = onClick,
                     text = "Buscar CEP",
                     modifier = Modifier
                         .padding(0.dp, 50.dp, 20.dp, 10.dp)
@@ -146,7 +145,6 @@ fun SearchCepScreen(
 
             }
 
-
         }
 
     }
@@ -166,7 +164,8 @@ fun SearchCep(
         onBairroChange = viewModel::onBairroChange,
         onCidadeChange = viewModel::onCidadeChange,
         onEstadoChange = viewModel::onEstadoChange,
-        navController
+        onClick = viewModel::onClick,
+        navController = navController
     )
 }
 
@@ -187,6 +186,7 @@ private fun SearchPreview() {
         onBairroChange = {},
         onCidadeChange = {},
         onEstadoChange = {},
+        onClick = {},
         navController
     )
 }

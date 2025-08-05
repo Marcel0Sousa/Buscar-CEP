@@ -1,8 +1,11 @@
 package com.marcelo.buscarcep.ui.theme.view
 
+import android.app.Application
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.marcelo.buscarcep.model.searchCepState
@@ -14,19 +17,40 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchCEPViewModel @Inject constructor(private val repository: Repository): ViewModel() {
+class SearchCEPViewModel @Inject constructor(
+    private val repository: Repository,
+    private val application: Application,
+) : ViewModel() {
+
 
     val _valor = MutableStateFlow("")
     val valorAlterado: StateFlow<String> = _valor
     var searchCepState by mutableStateOf(searchCepState())
         private set
 
-    fun valor(): String {
+    fun searchCep(
+        cep: String,
+        responseServer: (String, String, String, String) -> Unit,
+        messageError: (String) -> Unit,
+    ) {
         viewModelScope.launch {
-            repository.valor()
+            repository.searchCep(cep, responseServer, messageError)
         }
+    }
 
-        return valorAlterado.toString()
+    fun onClick() {
+        searchCep(
+            searchCepState.cep,
+            responseServer = { logradouro, bairro, cidade, estado ->
+                searchCepState = searchCepState.copy(
+                    logradouro = logradouro,
+                    bairro = bairro,
+                    cidade = cidade,
+                    estado = estado
+                )
+            }, messageError = { messageError ->
+                Toast.makeText(application, messageError, Toast.LENGTH_LONG).show()
+            })
     }
 
     fun onCepChange(newCep: String) {
