@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,6 +33,7 @@ import com.marcelo.buscarcep.ui.theme.Componentes.ButtonCustom
 import com.marcelo.buscarcep.ui.theme.Componentes.InputTextFieldCustom
 import com.marcelo.buscarcep.ui.theme.Teal700
 import com.marcelo.buscarcep.ui.theme.White
+import kotlinx.coroutines.flow.collectLatest
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +45,7 @@ fun SearchCepScreen(
     onBairroChange: (String) -> Unit,
     onCidadeChange: (String) -> Unit,
     onEstadoChange: (String) -> Unit,
+    onClick: () -> Unit,
     navController: NavController
 ) {
 
@@ -82,9 +85,7 @@ fun SearchCepScreen(
                 )
 
                 ButtonCustom(
-                    onClick = {
-                        Toast.makeText(context, onCepChange.toString(), Toast.LENGTH_LONG).show()
-                    },
+                    onClick = onClick,
                     text = "Buscar CEP",
                     modifier = Modifier
                         .padding(0.dp, 50.dp, 20.dp, 10.dp)
@@ -146,9 +147,7 @@ fun SearchCepScreen(
 
             }
 
-
         }
-
     }
 
 }
@@ -166,7 +165,8 @@ fun SearchCep(
         onBairroChange = viewModel::onBairroChange,
         onCidadeChange = viewModel::onCidadeChange,
         onEstadoChange = viewModel::onEstadoChange,
-        navController
+        onClick = viewModel::onClick,
+        navController = navController
     )
 }
 
@@ -187,6 +187,7 @@ private fun SearchPreview() {
         onBairroChange = {},
         onCidadeChange = {},
         onEstadoChange = {},
+        onClick = {},
         navController
     )
 }
