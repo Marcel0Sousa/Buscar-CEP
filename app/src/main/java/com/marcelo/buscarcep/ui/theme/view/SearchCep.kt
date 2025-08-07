@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,6 +33,7 @@ import com.marcelo.buscarcep.ui.theme.Componentes.ButtonCustom
 import com.marcelo.buscarcep.ui.theme.Componentes.InputTextFieldCustom
 import com.marcelo.buscarcep.ui.theme.Teal700
 import com.marcelo.buscarcep.ui.theme.White
+import kotlinx.coroutines.flow.collectLatest
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,7 +148,6 @@ fun SearchCepScreen(
             }
 
         }
-
     }
 
 }
